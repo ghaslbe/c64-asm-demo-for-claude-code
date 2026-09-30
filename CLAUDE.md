@@ -1,139 +1,83 @@
-# C64 Demo Project - IAC MASTERMIND CREW
+# C64 Demo Project - Günther Haslbeck & Claude Code (2026)
 
 ## Overview
-Legendary Commodore 64 cracktro-style demo by **ENGIN DIRI - IAC MASTERMIND CREW** featuring:
-- Rainbow raster color bar effects
-- DYCP sine wave scrolling text
-- 2-layer parallax starfield
-- 3-channel SID music (classic cracktro arpeggios)
-- Bouncing Pulumi logo sprite with color cycling
+Commodore 64 cracktro-style demo, written in 6502 assembly (64tass) on a MacBook:
+- Wobbling 3x5 block logo ("C64 DEMO") with per-line `$D016` sine and rainbow colour cycling
+- Rainbow raster bars in the top/bottom border
+- Three sine-driven copper bars with a 3-layer pixel-smooth parallax starfield in front
+- Double-height, pixel-smooth scroller on a shaded band
+- 6-sprite Pulumi snake on a figure-eight path with colour cycling
+- 3-voice SID tune (PWM arpeggios/lead, bass, kick/snare/hat, filter sweep)
 
 ## Files
-- `demo.prg` - Compiled C64 program (~1937 bytes)
-- `build_demo.py` - Python script that generates the .prg file
-- `validate_prg.py` - PRG structure validator and 6502 disassembler
-- `test_demo.sh` - Automated test script using VICE emulator
-- `make_d64.py` - Creates D64 disk image from .prg
-- `png2sprite.py` - Converts PNG images to C64 sprite data
-- `PROMPT.md` - Ralph Loop task prompt for autonomous development
+- `demo.asm` - the demo source (64tass syntax)
+- `build_demo.py` - generates `demo_data.inc` (sine/rainbow tables, music, stars, logo, scroll text, sprite) and assembles `demo.prg`
+- `demo_data.inc` - generated, git-ignored
+- `demo.prg` / `demo.d64` - build outputs
+- `make_d64.py` - creates `demo.d64` from `demo.prg`
+- `test_demo.sh` - builds, runs VICE headless in warp mode, saves `screenshot.png`
 
 ## Build
 ```bash
-python3 build_demo.py    # Creates demo.prg
-python3 make_d64.py      # Creates demo.d64 (optional)
+brew install tass64      # assembler, once
+python3 build_demo.py    # -> demo.prg
+python3 make_d64.py      # -> demo.d64 (optional)
 ```
-No external assembler required - the Python script hand-assembles the 6502 code.
 
-## Test
+## Run / test
 ```bash
-# Validate PRG structure
-python3 validate_prg.py demo.prg
-
-# Full automated test (builds, validates, runs VICE, captures screenshot)
-./test_demo.sh
-
-# Quick headless test with screenshot
-x64sc -warp -limitcycles 10000000 -exitscreenshot screenshot.png -autostart demo.prg
+x64sc -autostart demo.prg                     # interactive
+x64sc -8 demo.d64 -keybuf 'load"*",8,1\n'     # types load (lowercase!), does not RUN
+./test_demo.sh                                # screenshot after 45M cycles
 ```
+Loading from a PRG via the emulated drive takes ~20M cycles before the demo
+appears; use at least that for `-limitcycles` when taking screenshots.
+`x64sc -autostart-delay <sec> -autostart demo.prg` delays the autostart.
 
-## Run
-```bash
-# VICE emulator (interactive)
-x64sc -autostart demo.prg
+## Technical details
 
-# VirtualC64
-# Drag demo.d64 onto window, then:
-LOAD"*",8,1
-RUN
-```
+### Memory map
+- `$0801` BASIC stub `SYS 2064`, code at `$0810`, tables follow (must stay below `$3000`)
+- `$0400` screen, `$D800` colour RAM
+- `$3000` charset (ROM font copied at start, plus generated glyphs), `$3800` sprite data (pointer `$E0`)
+- `$C000` copper bar line buffer (80 bytes)
+- KERNAL/BASIC ROM are switched off (`$01=$35`), own IRQ/NMI vectors at `$FFFA/$FFFE`
 
-## Technical Details
+### Charset layout
+- `$00-$3F` ROM glyphs, `$40` solid block (logo), `$60-$77` star glyphs (3 layers x 8 pixel offsets)
+- `$80-$BF` top halves and `$C0-$FF` bottom halves of the double-height scroller font
+  (generated at start from the ROM font; `_` is code 63 and patched to an underscore)
 
-### Memory Map
-- `$0801` - BASIC stub with `SYS 2064`
-- `$0810` - Main program entry point
-- Zero page usage:
-  - `$02` - Sprite X position
-  - `$03` - Sprite Y position
-  - `$04` - Sprite X direction
-  - `$05` - Sprite Y direction
-  - `$06` - Sprite color
-  - `$F0-$F1` - Screen pointer (for sine scroller)
-  - `$F3-$F4` - Star pointer (for starfield)
-  - `$F5` - Temp X position
-  - `$F7` - Temp character
-  - `$F8` - Sine phase
-  - `$F9` - Raster offset
-  - `$FB-$FC` - Scroll text pointer
-  - `$FD` - Scroll counter
-  - `$FE` - Music index
-  - `$FF` - Frame counter
+### Raster stages (PAL, 312 lines)
+Table-driven IRQ chain, each stage busy-loops over its lines and writes colours/`$D016`:
+1. line 19: top border rainbow (20..50)
+2. line 74: logo wobble (75..114)
+3. line 130: copper bars from `BUF` (131..210), scroller band + fine scroll (211..242)
+4. line 250: bottom border rainbow (251..283), then sets `fflag`
 
-### C64 Hardware Used
-- Screen RAM: `$0400`
-- Color RAM: `$D800`
-- VIC-II: `$D000-$D02E` (sprites, raster, border, background)
-- SID: `$D400-$D418` (3-voice sound)
-- Sprite pointer: `$07F8`
+The main loop runs `logic` once per frame (after `fflag`): logo colours, bar buffer,
+stars, scroller, sprites, music. Stars/bars must finish before line 131 and the
+scroller before line 219 - keep an eye on the CPU budget when adding work
+(roughly 5800 free cycles per frame; measured: ~2 lines of headroom).
 
-### Effects
-
-1. **Rainbow Raster Bars** - Animated border colors cycling through all 16 C64 colors
-2. **DYCP Sine Wave Scroller** - Text waves vertically in classic demoscene style
-3. **Parallax Starfield** - 2-layer stars moving at different speeds for depth
-4. **Bouncing Sprite** - Pulumi logo bounces off screen edges
-5. **Color Cycling** - Sprite changes color on each bounce (1-15, skips black)
-
-### SID Music (Classic Cracktro Style)
-
-Three voices with distinct roles:
-- **Voice 1 (Lead)**: Pulse wave with fast arpeggios (C minor scale)
-  - Snappy ADSR for percussive arpeggio sound
-- **Voice 2 (Bass)**: Sawtooth wave, driving octave hits
-  - Punchy bass with quick decay
-- **Voice 3 (Drums)**: Noise wave, energetic beat patterns
-  - Kick, snare, and hi-hat patterns
-
-64-note patterns with fast tempo for energetic cracktro feel.
-
-### Sprite Details
-- 24x21 pixels, monochrome (single color)
-- Pulumi logo: 9 ovals in diamond/cube arrangement
-- Double-sized (X and Y expanded)
-- Position stored in zero page, updated each frame
-
-### PETSCII
-Text uses PETSCII screen codes (not ASCII). The `text_to_petscii()` function handles conversion.
+### Zero page
+`$02` frame counter, `$03` frame flag, `$04` line counter, `$05` rainbow phase,
+`$06` wobble phase, `$07/$08` scroller fine scroll / `$D016` value, `$09/$0A` scroll text pointer,
+`$0B-$11` music state, `$12-$14` bar phases, `$15-$19` sprite path state,
+`$1A-$1F` charset generator pointers, `$20/$21` screen pointer, `$24` temp,
+`$26/$27` raster stage vector, `$28` logo row.
 
 ## Modifying
+- **Texts:** `TITLE1`, `TITLE2`, `SCROLL` in `build_demo.py` (uppercase; no umlauts; `_` allowed)
+- **Big logo:** `LOGO_TEXT` and the 3x5 `FONT` glyphs (max 40 columns wide)
+- **Music:** `CHORDS`, `ROOTS`, `BASSPAT`, `DRUMS`, `MELODY` (128 steps, 5 frames each)
+- **Colours:** `RAMPS`, `LOGO_COLORS`, `BAND`, `SPRITE_COLORS`
+- **Sprite:** `SPRITE_DATA` (21 rows x 3 bytes, monochrome, X/Y expanded)
+- **Effects/timing:** `demo.asm`
 
-### Change scroll text
-Edit `scroll` variable in `build_demo.py` and rebuild.
-
-### Change music
-Edit `MELODY`, `BASS`, and `DRUMS` arrays. Notes use format like `'E4'`, `'A3'`, `'REST'`.
-
-### Change sprite
-Edit `SPRITE_DATA` array (21 rows of 3 bytes each = 63 bytes).
-Or use `png2sprite.py` to convert a PNG image.
-
-### Change colors
-- Raster: modify the raster bar loop
-- Text: change color values in print loops (0-15)
-- Sprite: starts at color 1, cycles through 1-15 on bounce
-
-### C64 Color Codes
+### C64 colour codes
 ```
 0=black, 1=white, 2=red, 3=cyan, 4=purple, 5=green,
 6=blue, 7=yellow, 8=orange, 9=brown, 10=light red,
 11=dark gray, 12=gray, 13=light green, 14=light blue, 15=light gray
-```
-
-## SID Note Reference
-```
-Octave 2: C2, D2, E2, F2, G2, A2, B2 (bass range)
-Octave 3: C3, D3, E3, F3, G3, A3, B3
-Octave 4: C4, D4, E4, F4, G4, A4, B4 (melody range)
-Octave 5: C5, D5, E5, F5, G5, A5
-REST = silence
 ```

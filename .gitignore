@@ -1,3 +1,7 @@
 .DS_Store
 __pycache__/
 *.pyc
+demo_data.inc
+demo.lst
+screenshot.png
+!docs/screenshot.png

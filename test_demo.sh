@@ -1,12 +1,12 @@
 #!/bin/bash
 # Test C64 demo in VICE emulator (headless-ish mode)
-# Runs for ~5 seconds in warp mode and captures a screenshot
+# Runs in warp mode and captures a screenshot
 
 set -e
 
 DEMO="${1:-demo.prg}"
 SCREENSHOT="${2:-screenshot.png}"
-CYCLES="${3:-10000000}"  # ~10 million cycles = ~5 seconds at 1MHz
+CYCLES="${3:-45000000}"  # loading via the emulated drive takes ~20M cycles
 
 echo "=== C64 Demo Tester ==="
 echo "Demo: $DEMO"
@@ -21,16 +21,9 @@ if [ ! -f "$DEMO" ]; then
 fi
 
 # Build if needed
-if [ "$DEMO" = "demo.prg" ] && [ -f "build_demo.py" ]; then
+if [ "$DEMO" = "demo.prg" ]; then
     echo "Building demo..."
     python3 build_demo.py
-    echo ""
-fi
-
-# Validate PRG structure
-if [ -f "validate_prg.py" ]; then
-    echo "Validating PRG..."
-    python3 validate_prg.py "$DEMO"
     echo ""
 fi
 
