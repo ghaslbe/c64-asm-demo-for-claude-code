@@ -5,3 +5,7 @@ demo_data.inc
 demo.lst
 screenshot.png
 !docs/screenshot.png
+games/brickstorm/brickstorm_data.inc
+games/brickstorm/brickstorm_auto.prg
+games/brickstorm/brickstorm_lose.prg
+games/brickstorm/test_*.png

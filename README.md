@@ -131,6 +131,12 @@ Die Effekte selbst stehen in `demo.asm`. Nach jeder Änderung einfach `python3 b
 | `demo.prg`      | fertiges Programm                                       |
 | `demo.d64`      | fertiges Diskettenabbild                                |
 | `docs/`         | Screenshot für dieses README                            |
+| `games/`        | weitere C64-Projekte (BRICKSTORM)                       |
+
+## Weitere Projekte
+
+- [`games/brickstorm`](games/brickstorm/README.md) - **BRICKSTORM**, ein Breakout-Spiel für den C64
+  (Joystick oder Tastatur, 5 Level, gepanzerte Steine, Musik und Effekte).
 
 ## Bekannte Einschränkungen
 

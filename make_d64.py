@@ -4,6 +4,13 @@
 # D64 format: 35 tracks, 683 blocks (174848 bytes)
 # Track 18 is directory and BAM
 
+import sys
+
+# usage: make_d64.py [in.prg] [out.d64] [FILENAME]
+PRG = sys.argv[1] if len(sys.argv) > 1 else 'demo.prg'
+D64 = sys.argv[2] if len(sys.argv) > 2 else 'demo.d64'
+NAME = sys.argv[3] if len(sys.argv) > 3 else 'DEMO'
+
 D64_SIZE = 174848
 TRACK_SECTORS = [
     0,  # track 0 doesn't exist
@@ -54,7 +61,7 @@ for track in range(1, 36):
         disk[bam_idx + 3] = max(0, (1 << (sectors - 16)) - 1) if sectors > 16 else 0
 
 # Disk name at BAM + $90 (padded with $A0)
-disk_name = b"DEMO DISK"
+disk_name = (NAME + " DISK").encode("ascii")[:16]
 for i in range(16):
     disk[bam_offset + 0x90 + i] = disk_name[i] if i < len(disk_name) else 0xA0
 
@@ -82,12 +89,12 @@ disk[entry + 1] = 1     # File start track
 disk[entry + 2] = 0     # File start sector
 
 # Filename "DEMO" (padded with $A0)
-filename = b"DEMO"
+filename = NAME.encode("ascii")[:16]
 for i in range(16):
     disk[entry + 3 + i] = filename[i] if i < len(filename) else 0xA0
 
 # Read our PRG file
-with open('demo.prg', 'rb') as f:
+with open(PRG, 'rb') as f:
     prg_data = f.read()
 
 # Calculate blocks needed
@@ -138,12 +145,12 @@ for block in range(blocks):
     current_track = next_track
     current_sector = next_sector
 
-with open('demo.d64', 'wb') as f:
+with open(D64, 'wb') as f:
     f.write(disk)
 
-print(f"Created demo.d64 (D64 disk image)")
-print(f"Contains: DEMO ({blocks} blocks)")
+print(f"Created {D64} (D64 disk image)")
+print(f"Contains: {NAME} ({blocks} blocks)")
 print("\nIn VirtualC64:")
-print('1. Drag demo.d64 onto window')
+print(f'1. Drag {D64} onto window')
 print('2. Type: LOAD"*",8,1 and press Enter')
 print('3. Type: RUN and press Enter')

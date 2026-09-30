@@ -17,6 +17,10 @@ Commodore 64 cracktro-style demo, written in 6502 assembly (64tass) on a MacBook
 - `make_d64.py` - creates `demo.d64` from `demo.prg`
 - `test_demo.sh` - builds, runs VICE headless in warp mode, saves `screenshot.png`
 
+## Games
+`games/brickstorm/` contains BRICKSTORM, a Breakout game (own `build.py`, `brickstorm.asm`,
+README and `test.sh`). `make_d64.py` accepts optional arguments: `make_d64.py in.prg out.d64 NAME`.
+
 ## Build
 ```bash
 brew install tass64      # assembler, once
