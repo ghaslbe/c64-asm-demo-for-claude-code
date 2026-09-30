@@ -9,3 +9,7 @@ games/brickstorm/brickstorm_data.inc
 games/brickstorm/brickstorm_auto.prg
 games/brickstorm/brickstorm_lose.prg
 games/brickstorm/test_*.png
+games/dungeonblast/dungeonblast_data.inc
+games/dungeonblast/dungeonblast_auto.prg
+games/dungeonblast/dungeonblast_god.prg
+games/dungeonblast/test_*.png
