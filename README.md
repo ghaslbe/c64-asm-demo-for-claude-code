@@ -131,7 +131,7 @@ Die Effekte selbst stehen in `demo.asm`. Nach jeder Änderung einfach `python3 b
 | `demo.prg`      | fertiges Programm                                       |
 | `demo.d64`      | fertiges Diskettenabbild                                |
 | `docs/`         | Screenshot für dieses README                            |
-| `games/`        | weitere C64-Projekte (BRICKSTORM, DUNGEON BLAST)        |
+| `games/`        | weitere C64-Projekte (BRICKSTORM, DUNGEON BLAST, DOJO BRAWL) |
 
 ## Weitere Projekte
 
@@ -139,6 +139,8 @@ Die Effekte selbst stehen in `demo.asm`. Nach jeder Änderung einfach `python3 b
   (Joystick oder Tastatur, 5 Level, gepanzerte Steine, Musik und Effekte).
 - [`games/dungeonblast`](games/dungeonblast/README.md) - **DUNGEON BLAST**, ein Labyrinth-Shooter im
   Stil von Wizard of Wor (4 Labyrinthe, drei Monsterarten, Zauberer, Tunnel, Musik und Effekte).
+- [`games/karate`](games/karate/README.md) - **DOJO BRAWL**, ein Karate-Kampfspiel mit drei Kämpfern
+  gleichzeitig im Stil von IK+ (5 Techniken, Bonusrunde, Sonnenuntergang per Rasterbalken).
 
 ## Bekannte Einschränkungen
 

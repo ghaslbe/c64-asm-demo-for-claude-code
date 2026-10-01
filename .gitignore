@@ -13,3 +13,12 @@ games/dungeonblast/dungeonblast_data.inc
 games/dungeonblast/dungeonblast_auto.prg
 games/dungeonblast/dungeonblast_god.prg
 games/dungeonblast/test_*.png
+games/karate/dojobrawl_data.inc
+games/karate/dojobrawl_sprites.inc
+games/karate/dojobrawl_auto.prg
+games/karate/dojobrawl_lose.prg
+games/karate/test_*.png
+games/karate/dojobrawl_bg.inc
+games/karate/tempel.png
+games/karate/Commodore 64*.png
+games/karate/PlayStation*.png

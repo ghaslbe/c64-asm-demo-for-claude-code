@@ -18,8 +18,9 @@ Commodore 64 cracktro-style demo, written in 6502 assembly (64tass) on a MacBook
 - `test_demo.sh` - builds, runs VICE headless in warp mode, saves `screenshot.png`
 
 ## Games
-`games/brickstorm/` contains BRICKSTORM, a Breakout game, and `games/dungeonblast/` DUNGEON BLAST,
-a maze shooter (each with its own `build.py`, `.asm`, README and `test.sh`). `make_d64.py` accepts optional arguments: `make_d64.py in.prg out.d64 NAME`.
+`games/brickstorm/` contains BRICKSTORM, a Breakout game, `games/dungeonblast/` DUNGEON BLAST,
+a maze shooter, and `games/karate/` DOJO BRAWL, a three fighter karate game (each with its own
+`build.py`, `.asm`, README and `test.sh`). `make_d64.py` accepts optional arguments: `make_d64.py in.prg out.d64 NAME`.
 
 ## Build
 ```bash
